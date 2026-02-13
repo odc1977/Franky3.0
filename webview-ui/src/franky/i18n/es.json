@@ -1,0 +1,19 @@
+{
+	"app": {
+		"name": "Franky 3.0",
+		"description": "Orquestador de desarrollo impulsado por IA"
+	},
+	"status": {
+		"initializing": "Franky 3.0 inicializando...",
+		"ready": "Franky 3.0 listo",
+		"error": "Franky 3.0 encontró un error"
+	},
+	"agents": {
+		"frontend": "Agente Frontend",
+		"backend": "Agente Backend",
+		"testing": "Agente de Testing",
+		"docs": "Agente de Documentación",
+		"orchestrator": "Agente Orquestador",
+		"security": "Agente de Seguridad"
+	}
+}

@@ -1,7 +1,7 @@
-import * as vscode from "vscode"
 import * as dotenvx from "@dotenvx/dotenvx"
 import * as fs from "fs"
 import * as path from "path"
+import * as vscode from "vscode"
 import * as ZgsmCore from "./core/costrict"
 
 // Load environment variables from .env file
@@ -18,45 +18,47 @@ if (fs.existsSync(envPath)) {
 	}
 }
 
+import { customToolRegistry } from "@roo-code/core"
 // import type { CloudUserInfo, AuthState } from "@roo-code/types"
 // import { CloudService, BridgeOrchestrator } from "@roo-code/cloud"
-import { TelemetryService, PostHogTelemetryClient } from "@roo-code/telemetry"
-import { customToolRegistry } from "@roo-code/core"
+import { PostHogTelemetryClient, TelemetryService } from "@roo-code/telemetry"
 
 import "./utils/path" // Necessary to have access to String.prototype.toPosix.
-import { createOutputChannelLogger, createDualLogger } from "./utils/outputChannelLogger"
-import { initializeNetworkProxy } from "./utils/networkProxy"
 
-import { Package } from "./shared/package"
-import { formatLanguage } from "./shared/language"
+import {
+	CodeActionProvider,
+	handleUri,
+	registerCodeActions,
+	registerCommands,
+	registerTerminalActions,
+} from "./activate"
 import { ContextProxy } from "./core/config/ContextProxy"
+import { ZgsmAuthConfig } from "./core/costrict/auth/index"
+import { activateCoworkflowIntegration, deactivateCoworkflowIntegration } from "./core/costrict/workflow"
 import { ClineProvider } from "./core/webview/ClineProvider"
-import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
-import { TerminalRegistry } from "./integrations/terminal/TerminalRegistry"
+import { API } from "./extension/api"
+// ─── Franky 3.0 ────────────────────────────────────────────────
+import { disposeFrankyLogger, getFrankyLogger } from "./franky/utils/logger"
+import { initializeI18n } from "./i18n"
 import { claudeCodeOAuthManager } from "./integrations/claude-code/oauth"
+import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
 import { openAiCodexOAuthManager } from "./integrations/openai-codex/oauth"
+import { TerminalRegistry } from "./integrations/terminal/TerminalRegistry"
 import { McpServerManager } from "./services/mcp/McpServerManager"
 // import { CodeIndexManager } from "./services/code-index/manager"
 import { MdmService } from "./services/mdm/MdmService"
-import { migrateSettings } from "./utils/migrateSettings"
+import { formatLanguage } from "./shared/language"
+import { Package } from "./shared/package"
 import { autoImportSettings } from "./utils/autoImportSettings"
-import { API } from "./extension/api"
-import { ZgsmAuthConfig } from "./core/costrict/auth/index"
-
-import {
-	handleUri,
-	registerCommands,
-	registerCodeActions,
-	registerTerminalActions,
-	CodeActionProvider,
-} from "./activate"
-import { initializeI18n } from "./i18n"
 import { getCommand } from "./utils/commands"
-import { activateCoworkflowIntegration, deactivateCoworkflowIntegration } from "./core/costrict/workflow"
+import { loadIdeaShellEnvOnce } from "./utils/ideaShellEnvLoader"
 import { defaultLang } from "./utils/language"
 import { createLogger } from "./utils/logger"
-import { loadIdeaShellEnvOnce } from "./utils/ideaShellEnvLoader"
+import { migrateSettings } from "./utils/migrateSettings"
+import { initializeNetworkProxy } from "./utils/networkProxy"
+import { createDualLogger, createOutputChannelLogger } from "./utils/outputChannelLogger"
 import { isJetbrainsPlatform } from "./utils/platform"
+
 // import { flushModels, getModels, initializeModelCacheRefresh } from "./api/providers/fetchers/modelCache"
 
 /**
@@ -131,6 +133,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	outputChannel = createLogger(Package.outputChannel).channel
 	context.subscriptions.push(outputChannel)
 	outputChannel.appendLine(`${Package.name} extension activated - ${JSON.stringify(Package)}`)
+
+	// ─── Franky 3.0 Initialization ─────────────────────────────
+	const frankyLogger = getFrankyLogger()
+	context.subscriptions.push({ dispose: () => disposeFrankyLogger() })
+	frankyLogger.info("Franky 3.0 initializing...")
+	frankyLogger.info(`Version: 3.0.0-alpha.0 | Environment: ${process.env.NODE_ENV ?? "production"}`)
+	frankyLogger.channel.show(false) // Show the Franky channel but don't steal focus
 
 	// Initialize network proxy configuration early, before any network requests.
 	// When proxyUrl is configured, all HTTP/HTTPS traffic will be routed through it.
@@ -416,9 +425,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	if (process.env.NODE_ENV === "development") {
 		const watchPaths = [
 			{ path: context.extensionPath, pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "../packages/types"), pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "../packages/telemetry"), pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"), pattern: "**/*" },
+			{
+				path: path.join(context.extensionPath, "../packages/types"),
+				pattern: "**/*.ts",
+			},
+			{
+				path: path.join(context.extensionPath, "../packages/telemetry"),
+				pattern: "**/*.ts",
+			},
+			{
+				path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"),
+				pattern: "**/*",
+			},
 		]
 
 		console.log(
@@ -475,6 +493,9 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate() {
 	await ZgsmCore.deactivate()
 	outputChannel.appendLine(`${Package.name} extension deactivated`)
+
+	// ─── Franky 3.0 Cleanup ───────────────────────────────────
+	disposeFrankyLogger()
 
 	// if (cloudService && CloudService.hasInstance()) {
 	// 	try {
