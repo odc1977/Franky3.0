@@ -1,0 +1,18 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Franky 3.0 Activity Bar Icon — Monochrome Robot Head -->
+  <!-- Outer head shape -->
+  <rect x="3" y="4" width="18" height="16" rx="4" fill="currentColor" opacity="0.15"/>
+  <rect x="3" y="4" width="18" height="16" rx="4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <!-- Antenna -->
+  <line x1="12" y1="1" x2="12" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="12" cy="1" r="1" fill="currentColor"/>
+  <!-- Eyes -->
+  <circle cx="8.5" cy="11" r="2" fill="currentColor"/>
+  <circle cx="15.5" cy="11" r="2" fill="currentColor"/>
+  <!-- Mouth / Grill -->
+  <line x1="8" y1="16" x2="16" y2="16" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="9" y1="18" x2="15" y2="18" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- Ears / Side panels -->
+  <rect x="1" y="9" width="2" height="6" rx="1" fill="currentColor" opacity="0.7"/>
+  <rect x="21" y="9" width="2" height="6" rx="1" fill="currentColor" opacity="0.7"/>
+</svg>

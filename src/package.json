@@ -79,6 +79,11 @@
 					"id": "zgsm-ActivityBar",
 					"title": "%views.activitybar.title%",
 					"icon": "assets/images/shenma_robot_logo_big.png"
+				},
+				{
+					"id": "franky-ActivityBar",
+					"title": "Franky 3.0",
+					"icon": "assets/images/franky_icon.svg"
 				}
 			]
 		},
@@ -90,9 +95,27 @@
 					"name": "%views.sidebar.name%",
 					"icon": "assets/images/shenma_robot_logo_big.png"
 				}
+			],
+			"franky-ActivityBar": [
+				{
+					"id": "franky.dashboard",
+					"name": "Dashboard",
+					"icon": "assets/images/franky_icon.svg"
+				}
 			]
 		},
+		"viewsWelcome": [
+			{
+				"view": "franky.dashboard",
+				"contents": "🤖 Franky 3.0\n\nMulti-Agent AI Coding Assistant\nVersion: 3.0.0-alpha.0\n\n━━━━━━━━━━━━━━━━━━━━\nStatus: FASE 0 — Base Structure\n\nAgents: 6 registered (inactive)\nOrchestrator: Pending FASE 1\n\n[Open Franky Output](command:franky.showOutput)\n[Open CoStrict](command:zgsm.SidebarProvider.focus)"
+			}
+		],
 		"commands": [
+			{
+				"command": "franky.showOutput",
+				"title": "Franky 3.0: Show Output",
+				"icon": "$(output)"
+			},
 			{
 				"command": "zgsm-completion.shortKeyCut",
 				"title": "%command.shortKeyCut.title%",
