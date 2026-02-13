@@ -141,24 +141,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	frankyLogger.info(`Version: 3.0.0-alpha.0 | Environment: ${process.env.NODE_ENV ?? "production"}`)
 	frankyLogger.channel.show(false) // Show the Franky channel but don't steal focus
 
-	// Franky sidebar: register empty TreeDataProvider (content via viewsWelcome)
-	const frankyTreeProvider: vscode.TreeDataProvider<string> = {
-		getTreeItem: (el: string) => new vscode.TreeItem(el),
-		getChildren: () => [],
-	}
-	context.subscriptions.push(
-		vscode.window.createTreeView("franky.dashboard", {
-			treeDataProvider: frankyTreeProvider,
-		}),
-	)
-
 	// Franky command: show output channel
 	context.subscriptions.push(
 		vscode.commands.registerCommand("franky.showOutput", () => {
 			frankyLogger.channel.show(true)
 		}),
 	)
-	frankyLogger.info("Sidebar registered.")
+	frankyLogger.info("Franky 3.0 unified sidebar active.")
 
 	// Initialize network proxy configuration early, before any network requests.
 	// When proxyUrl is configured, all HTTP/HTTPS traffic will be routed through it.
