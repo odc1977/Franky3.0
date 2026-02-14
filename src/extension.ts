@@ -141,13 +141,44 @@ export async function activate(context: vscode.ExtensionContext) {
 	frankyLogger.info(`Version: 3.0.0-alpha.0 | Environment: ${process.env.NODE_ENV ?? "production"}`)
 	frankyLogger.channel.show(false) // Show the Franky channel but don't steal focus
 
-	// Franky command: show output channel
+	// Orchestrator: boot all agents
+	const { OrchestratorService } = await import("./franky/orchestrator/orchestrator-service")
+	const orchestrator = new OrchestratorService()
+	await orchestrator.initialize()
+	context.subscriptions.push({ dispose: () => orchestrator.dispose() })
+
+	// Sidebar: dynamic TreeDataProvider showing agent status
+	const { FrankySidebarProvider } = await import("./franky/components/sidebar-provider")
+	const frankySidebar = new FrankySidebarProvider()
+	frankySidebar.setOrchestrator(orchestrator)
+	context.subscriptions.push(
+		vscode.window.createTreeView("franky.dashboard", {
+			treeDataProvider: frankySidebar,
+			showCollapseAll: true,
+		}),
+	)
+
+	// Franky commands
 	context.subscriptions.push(
 		vscode.commands.registerCommand("franky.showOutput", () => {
 			frankyLogger.channel.show(true)
 		}),
+		vscode.commands.registerCommand("franky.orchestratorStatus", () => {
+			const state = orchestrator.stateManager.getState()
+			const agents = orchestrator.registry.getAllDescriptors()
+			const lines = [
+				`🤖 Franky 3.0 Orchestrator Status`,
+				`Phase: ${state.phase}`,
+				`Active Tasks: ${orchestrator.taskManager.activeCount}`,
+				`Agents (${agents.length}):`,
+				...agents.map((a) => `  ${a.status === "idle" ? "✅" : "🔄"} ${a.name} [${a.capabilities.join(", ")}]`),
+			]
+			vscode.window.showInformationMessage(lines.join("\n"))
+		}),
 	)
-	frankyLogger.info("Franky 3.0 unified sidebar active.")
+	frankyLogger.info(
+		`Orchestrator ready: ${orchestrator.registry.size} agents, phase=${orchestrator.stateManager.getPhase()}`,
+	)
 
 	// Initialize network proxy configuration early, before any network requests.
 	// When proxyUrl is configured, all HTTP/HTTPS traffic will be routed through it.

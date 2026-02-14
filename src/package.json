@@ -89,6 +89,12 @@
 					"id": "zgsm.SidebarProvider",
 					"name": "%views.sidebar.name%",
 					"icon": "assets/images/franky_icon.svg"
+				},
+				{
+					"id": "franky.dashboard",
+					"name": "Orchestrator",
+					"icon": "$(robot)",
+					"visibility": "visible"
 				}
 			]
 		},
@@ -97,6 +103,11 @@
 				"command": "franky.showOutput",
 				"title": "Franky 3.0: Show Output",
 				"icon": "$(output)"
+			},
+			{
+				"command": "franky.orchestratorStatus",
+				"title": "Franky 3.0: Orchestrator Status",
+				"icon": "$(dashboard)"
 			},
 			{
 				"command": "zgsm-completion.shortKeyCut",
